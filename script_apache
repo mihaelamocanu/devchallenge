@@ -1,0 +1,27 @@
+#!/bin/bash
+service=apache2
+counter=-1;
+run(){
+if (( $(netstat -ltp | grep http | grep apache2|wc -l) > 0 ))
+then
+	echo "$service is running!!!"
+	if (curl localhost/index.html | grep "Thank you" > /dev/null)
+	then 
+	echo "both the $service and website are running"
+	else 
+	echo "the $service is running but the website is down"
+	fi
+else
+	sendemail -f m@m.com -t mihaella0293@yahoo.com  < /tmp/email
+	/etc/init.d/apache2 start
+	((counter++))
+	if (($counter>0)&&(!($counter%5)))
+	then
+	sendemail -f m@m.com -t michellle0293@gmail.com < /tmp/email
+	fi
+fi
+}
+export -f run
+watch -n 120 -x bash -c run
+
+
